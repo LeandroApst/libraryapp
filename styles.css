@@ -1,0 +1,29 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+.select-dropdown{
+  max-height: 200px;  
+}
+
+.container{    
+    margin-top: 30px;
+    border: groove;
+    border-radius: 10px;
+}
+
+div#table_container{
+    overflow-x: auto;
+}
+

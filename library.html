@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Import jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"
+  integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+   
+  <!-- Import Materialize JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+
+<link href="https://cdn.datatables.net/v/ju/dt-1.13.4/b-2.3.6/b-colvis-2.3.6/r-2.4.1/datatables.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
+
+<!-- Para os contadores dos caracteres nos input -->
+<!-- <script src = "https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>	 -->
+
+<script src="./initFirebase.js"></script>
+<!-- <link href="styles.css" rel="stylesheet"> -->
+
+</head>
+
+<body>
+  <div class="container">
+  <div class="row">
+      <div class=" input-field col s12 m6 l6">            
+        <i class="material-icons prefix">search</i>
+        <input id="surch" type="text" class="validate">
+        <label for="surch">Digite o Livro, Autor ou Categoria</label>
+      </div>
+      <div class="col s12 m6 l6 center" style="padding-top: 20px;">
+          <!-- Modal Trigger -->
+          <a class="waves-effect waves-light btn" href="#" onclick="openModal()">Cadastrar Livro</a>
+      </div>
+  </div>
+
+  <div class="row" id="table_container">
+      <div class="col s12">
+          <table id="bookTable">
+              <thead>
+              <tr>
+                  <th>Id</th>
+                  <th>Nome do Livro</th>
+                  <th>Autor</th>
+                  <th>Categoria</th>
+                  <th>Corredor</th>
+                  <th>Prateleira</th>
+                  <th>Disponibilidade</th>
+              </tr>
+              </thead>
+              <tbody>
+              
+          </tbody>
+          </table>
+      </div>
+  </div>       
+  </div>
+
+   
+
+<!-- Modal Structure -->
+<div id="modal1" class="modal" style="border-radius: 20px;">
+  <div class="modal-content" style="padding: 10px 15px 0px;">
+      <div class="row">
+          <form class="col s12" id="addBookForm">
+            <div class="row">
+              <div class="input-field col s6 m4 l4 ">
+                <i class="material-icons prefix">sell</i>
+                <input id="id" type="text"  class="validate" onfocusout="checkDatabase(this.value)" required>
+                <label for="id">Id do Livro</label>
+                <text id="warning" hidden>O Id informado já existe, por favor insira outro Id</text>                  
+              </div>
+            </div>
+            <div class="row">
+              <div class="input-field col s12 m6 l5">
+                <i class="material-icons prefix">import_contacts</i>
+                <input id="name" type="text" class="validate"  length="25" maxlength="25" required>
+                <label for="name">Nome do Livro</label>
+              </div>
+              <div class="input-field col s12 m6 l5">
+                <i class="material-icons prefix">assignment_ind</i>
+                <input id="author" type="text" class="validate" length="20" maxlength="20" required>
+                <label for="author">Autor</label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="input-field col s12 m5 l5">
+                <i class="material-icons prefix">category</i>
+                <select id="category" required>
+                  <option value="" disabled selected>Selecione</option>
+                  <option value="Romance">Romance</option>
+                  <option value="Drama">Drama</option> 
+                  <option value="Novela">Novela</option>
+                  <option value="Conto">Conto</option> 
+                  <option value="Crônica">Crônica</option>
+                  <option value="Ensaio">Ensaio</option> 
+                  <option value="Poesia">Poesia</option>
+                  <option value="Carta">Carta</option> 
+                  <option value="Biografia">Biografia</option>
+                  <option value="Memoria">Memoria</option> 
+                  <option value="Ficção-Aventura">Ficção-Aventura</option>
+                  <option value="Ficção-Drama">Ficção-Drama</option> 
+                  <option value="HQ">HQ</option>
+                  <option value="Infantil">Infantil</option> 
+                  <option value="Juvenil">Juvenil</option>
+                  <option value="Realismo">Realismo</option>
+                  <option value="Terror">Terror</option>
+                  <option value="Acadêmico">Acadêmico</option>                                        
+                </select>
+                <label>Categoria</label>
+              </div>
+              <div class="input-field col s4 m2 l2 ">
+                <i class="material-icons prefix">directions</i>
+                <input id="corridor" type="number" step="1" min="1" max="10" class="validate" required>
+                <label for="corridor">Corredor</label>                  
+              </div>
+              <div class="input-field col s4 m2 l2 offset-s2">
+                <i class="material-icons prefix">grid_on</i>
+                  <input id="shelf" type="number" step="1" min="1" max="10" class="validate" required>
+                  <label for="shelf">Prateleria</label>
+              </div>                  
+            </div> 
+            <div class="row">
+              <div class="input-field col s12 m3 l3">
+                <i class="material-icons prefix">flag</i>
+                <select id="availability" required>
+                  <option value="" disabled selected>Selecione</option>
+                  <option value="Disponivel">Disponivel</option>
+                  <option value="Indisponivel">Indisponivel</option>                      
+                </select>
+                <label>Disponibilidade</label>
+              </div>
+            </div>
+            <button class="waves-effect waves-green btn" id="btn-save" type="submit" name="action">Salvar</button>                         
+          </form>
+        </div>
+  </div>    
+</div>
+  
+</body>
+<script  src="./script.js"></script>
+<!-- <script src="script.js"></script> -->
+</html>

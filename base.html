@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Book List</title>
+	<!-- Import Materialize CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<!-- Import jQuery -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<!-- Import Materialize JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<!-- Initialize Materialize JS -->
+	<script>
+		$(document).ready(function(){
+			$('.modal').modal();
+		});
+	</script>
+	<!-- Initialize Firebase -->
+	<script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
+	<script>
+		var firebaseConfig = {
+            apiKey: "AIzaSyBkLPp9ed4jHFGPjiu5Hl7sEszXnjntGx0Y",
+            authDomain: "bookstore-cdf71.firebaseapp.com",
+            databaseURL: "https://bookstore-cdf71-default-rtdb.firebaseio.com/",
+            projectId: "bookstore-cdf71",
+            storageBucket: "bookstore-cdf71.appspot.com",
+            messagingSenderId: "480892299800",
+            appId: "1:480892299800:web:6bcaa8f5bfbe8b28eb716d"
+		};
+		firebase.initializeApp(firebaseConfig);
+	</script>
+	<!-- Read from Firebase and populate table -->
+	<script>
+		var database = firebase.database();
+		database.ref('books/').on('value', function(snapshot){
+			var bookList = snapshot.val();
+			var table = $('#bookTable tbody');
+			table.empty();
+			$.each(bookList, function(index, book){
+				var row = $('<tr>');
+				row.append($('<td>').text(book.id));
+				row.append($('<td>').text(book.name));
+				row.append($('<td>').text(book.author));
+				row.append($('<td>').text(book.price));
+				row.append($('<td>').html('<a href="#modal1" onclick="openModal('+book.id+')" class="modal-trigger"><i class="material-icons">edit</i></a>'));
+				row.append($('<td>').html('<a href="#" onclick="removeItem('+book.id+')"><i class="material-icons">remove_circle</i></a>'));
+				table.append(row);
+			});
+		});
+
+		function removeItem(id){
+		database.ref('books/' + id).remove()
+		}
+
+		function openModal(id){
+			var data = {}
+			database.ref('books/' + id).on('value', function(snapshot){
+			data = snapshot.val()
+			})
+			//var instance = M.Modal.getInstance(elem);
+			//instance.open();
+			$("#id").val(data.id)
+			$("#name").val(data.name)
+			$("#author").val(data.author)
+			$("#price").val(data.price)
+			document.querySelectorAll("#modal1 label").forEach(function(e){
+				e.classList.add("active")
+			})
+		}
+
+		function checkDatabase(key){
+		database.ref('books/' + key).on('value', function(snapshot){
+			if(snapshot.exists()){
+				$("#warning").show()
+				$("#addBt").prop("disabled",true);
+			}else{
+				$("#warning").hide()
+				$("#addBt").prop("disabled",false);
+			}
+		})
+		
+		}
+		
+	</script>
+</head>
+<body>
+	<div class="container">
+		<h1>Book List</h1>
+		<div class="row">
+			<div class="input-field col s6">
+				<input id="search" type="text" class="validate">
+				<label for="search">Search</label>
+			</div>
+			<div class="col s6">
+				<a href="#modal2" class="btn-floating btn-large waves-effect waves-light red modal-trigger"><i class="material-icons">add</i></a>
+			</div>
+		</div>
+		<table id="bookTable">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Book name</th>
+					<th>Author</th>
+					<th>Price</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+	</div>
+	<!-- Modal Structure -->
+	<div id="modal1" class="modal">
+		<div class="modal-content">
+			<h4>Add Book</h4>
+			<form id="addBookForm1">
+				<div class="input-field">
+					<input id="id" type="text" class="validate" required>
+					<label for="id">Book ID</label>
+				</div>
+				<div class="input-field">
+					<input id="name" type="text" class="validate" required>
+					<label for="name">Book name</label>
+				</div>
+				<div class="input-field">
+					<input id="author" type="text" class="validate" required>
+					<label for="author">Author</label>
+				</div>
+				<div class="input-field">
+					<input id="price" type="number" class="validate" required>
+					<label for="price">Price</label>
+				</div>
+				<button class="btn waves-effect waves-light" type="submit" name="action">
+					<i class="material-icons right">send</i>
+					Send
+				</button>
+			</form>
+		</div>
+	</div>
+	<div id="modal2" class="modal">
+		<div class="modal-content">
+			<h4>Add Book</h4>
+			<form id="addBookForm">
+				<div class="input-field">
+					<input onfocusout="checkDatabase(this.value)" id="id" type="text" class="validate" required>
+					<label for="id">Book ID</label>
+					<text id="warning" hidden>The informed ID already exists, please enter another ID</text>
+				</div>
+				<div class="input-field">
+					<input id="name" type="text" class="validate" required>
+					<label for="name">Book name</label>
+				</div>
+				<div class="input-field">
+					<input id="author" type="text" class="validate" required>
+					<label for="author">Author</label>
+				</div>
+				<div class="input-field">
+					<input id="price" type="number" class="validate" required>
+					<label for="price">Price</label>
+				</div>
+				<button class="btn waves-effect waves-light" type="submit" id="addBt" name="action">
+					<i class="material-icons right">send</i>
+					Send
+				</button>
+			</form>
+		</div>
+	</div>
+	<!-- Add book to Firebase and table -->
+	<script>
+		$('#addBookForm').submit(function(event){
+			event.preventDefault();
+			var name = $('#modal2 #name').val();
+			var author = $('#modal2 #author').val();
+			var price = $('#modal2 #price').val();
+			var id = $('#modal2 #id').val();
+			database.ref('books/' + id).set({
+				id:id,
+				name: name,
+				author: author,
+				price: price
+			});
+			$('#modal2').modal('close');
+			$('#addBookForm')[0].reset();
+		});
+		$('#addBookForm1').submit(function(event){
+			event.preventDefault();
+			var name = $('#modal1 #name').val();
+			var author = $('#modal1 #author').val();
+			var price = $('#modal1 #price').val();
+			var id = $('#modal1 #id').val();
+			database.ref('books/' + id).set({
+				id:id,
+				name: name,
+				author: author,
+				price: price
+			});
+			$('#modal1').modal('close');
+			$('#addBookForm1')[0].reset();
+		});
+	</script>
+</body>
+</html>
